@@ -11,10 +11,19 @@ import GameplayKit
 
 class GameScene: SKScene {
     
+    var bird2 = SKSpriteNode()
     
     override func didMove(to view: SKView) {
-        
-           }
+    /* If we want to add a bird in code instead of directly in the GameScene.sks file:
+         
+        let texture = SKTexture(imageNamed: "bird")
+        bird2 = SKSpriteNode(texture: texture)
+        bird2.position = CGPoint(x: -self.frame.width / 4, y: -self.frame.height / 4)
+        bird2.size = CGSize(width: self.frame.width / 16, height: self.frame.height / 10)
+        bird2.zPosition = 1
+        self.addChild(bird2)
+        */
+    }
     
     
     func touchDown(atPoint pos : CGPoint) {
