@@ -11,9 +11,12 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    var bird2 = SKSpriteNode()
+//    var bird2 = SKSpriteNode()
+    
+    var bird = SKSpriteNode()
     
     override func didMove(to view: SKView) {
+        
     /* If we want to add a bird in code instead of directly in the GameScene.sks file:
          
         let texture = SKTexture(imageNamed: "bird")
@@ -23,6 +26,19 @@ class GameScene: SKScene {
         bird2.zPosition = 1
         self.addChild(bird2)
         */
+    
+    
+        bird = childNode(withName: "bird") as! SKSpriteNode         // uses the name given in GameScene.sks
+        
+        let birdTexture = SKTexture(imageNamed: "bird")         // will be used just to get its size
+        
+        bird.physicsBody = SKPhysicsBody(circleOfRadius: birdTexture.size().height / 13)            // divided by 10 because we made the original image smaller
+        bird.physicsBody?.affectedByGravity = true
+        bird.physicsBody?.isDynamic = true
+        bird.physicsBody?.mass = 0.5                    // in kg
+    
+        self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)       // sets border of physics world so bird will stop falling
+        
     }
     
     
