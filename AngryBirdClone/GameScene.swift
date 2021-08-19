@@ -45,9 +45,9 @@ class GameScene: SKScene {
         let birdTexture = SKTexture(imageNamed: "bird")         // will be used just to get its size
         
         bird.physicsBody = SKPhysicsBody(circleOfRadius: birdTexture.size().height / 13)            // divided by 10 because we made the original image smaller
-        bird.physicsBody?.affectedByGravity = true
+        bird.physicsBody?.affectedByGravity = false             // so bird won't fall when we start, will set this to true in touchesBegan
         bird.physicsBody?.isDynamic = true
-        bird.physicsBody?.mass = 0.5                    // in kg
+        bird.physicsBody?.mass = 0.15                    // in kg
     
         
         // BOXES
@@ -105,7 +105,8 @@ class GameScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
-        
+        bird.physicsBody?.applyImpulse(CGVector(dx: 50, dy: 100))
+        bird.physicsBody?.affectedByGravity = true
         
     }
     
