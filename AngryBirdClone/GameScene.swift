@@ -20,6 +20,9 @@ class GameScene: SKScene {
     var box4 = SKSpriteNode()
     var box5 = SKSpriteNode()
 
+    var gameStarted = false
+    
+    var birdOriginalPosition : CGPoint?
     
     override func didMove(to view: SKView) {
         
@@ -45,9 +48,10 @@ class GameScene: SKScene {
         let birdTexture = SKTexture(imageNamed: "bird")         // will be used just to get its size
         
         bird.physicsBody = SKPhysicsBody(circleOfRadius: birdTexture.size().height / 13)            // divided by 10 because we made the original image smaller
-        bird.physicsBody?.affectedByGravity = false             // so bird won't fall when we start, will set this to true in touchesBegan
+        bird.physicsBody?.affectedByGravity = false             // so bird won't fall when we start, will set this to true in touchesEnded
         bird.physicsBody?.isDynamic = true
         bird.physicsBody?.mass = 0.15                    // in kg
+        birdOriginalPosition = bird.position
     
         
         // BOXES
@@ -105,15 +109,104 @@ class GameScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
+    /* example on how to move bird by touching à la Flappy Bird style:
         bird.physicsBody?.applyImpulse(CGVector(dx: 50, dy: 100))
         bird.physicsBody?.affectedByGravity = true
+    */
+        
+        if gameStarted == false {                           // means we're starting now
+            
+            if let touch = touches.first {                  // gives the 1st point the user has touched
+                
+                let touchLocation = touch.location(in: self)
+                let touchNodes = nodes(at: touchLocation)       // to understand if the user touched the bird
+                
+                if touchNodes.isEmpty == false {                // so we did touch some node
+                    
+                    for node in touchNodes {
+                        
+                        if let sprite = node as? SKSpriteNode {
+                            if sprite == bird {
+                                bird.position = touchLocation   // will move the bird to the location where the user is touching
+                            }
+                        }
+                    }
+                    
+                }
+                
+            }
+        }
         
     }
     
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        // copying same code from touchesBegan because we need the bird move to continue as long as we touch
+        if gameStarted == false {                           // means we're starting now
+            
+            if let touch = touches.first {                  // gives the 1st point the user has touched
+                
+                let touchLocation = touch.location(in: self)
+                let touchNodes = nodes(at: touchLocation)       // to understand if the user touched the bird
+                
+                if touchNodes.isEmpty == false {                // so we did touch some node
+                    
+                    for node in touchNodes {
+                        
+                        if let sprite = node as? SKSpriteNode {
+                            if sprite == bird {
+                                bird.position = touchLocation   // will move the bird to the location where the user is touching
+                            }
+                        }
+                    }
+                    
+                }
+                
+            }
+        }
+
+        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        // here we know that the user let go of the touch
+        // so copying again the same code as above, but this time we will change the bird's position according to the user's touch
+        
+        if gameStarted == false {                           // means we're starting now
+            
+            if let touch = touches.first {                  // gives the 1st point the user has touched
+                
+                let touchLocation = touch.location(in: self)
+                let touchNodes = nodes(at: touchLocation)       // to understand if the user touched the bird
+                
+                if touchNodes.isEmpty == false {                // so we did touch some node
+                    
+                    for node in touchNodes {
+                        
+                        if let sprite = node as? SKSpriteNode {
+                            if sprite == bird {
+                                
+                                let dx = touchLocation.x - birdOriginalPosition!.x      // calculates x difference between the bird's original position and current touch position
+                                let dy = touchLocation.y - birdOriginalPosition!.y      // same for y position
+                                
+                                let impulse = CGVector(dx: -dx, dy: -dy)
+                                
+                                bird.physicsBody?.applyImpulse(impulse)
+                                bird.physicsBody?.affectedByGravity = true              // now we can turn this on
+                                
+                                gameStarted = true                                      // so further touches to the bird won't be affected
+                                
+                            }
+                        }
+                    }
+                    
+                }
+                
+            }
+        }
+
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -122,5 +215,22 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        
+        if let birdPhysicsBody = bird.physicsBody {                         // to make it not optional
+            
+            if birdPhysicsBody.velocity.dx <= 0.1 && birdPhysicsBody.velocity.dy <= 0.1 && birdPhysicsBody.angularVelocity <= 0.1 && gameStarted == true {      // going to reset trhe game only if bird has almost stopped moving
+                
+                bird.physicsBody?.affectedByGravity = false
+                bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+                bird.physicsBody?.angularVelocity = 0
+                bird.zPosition = 1
+                bird.position = birdOriginalPosition!
+                bird.zRotation = 0
+                gameStarted = false
+                
+            }
+        }
+        
+        
     }
 }
